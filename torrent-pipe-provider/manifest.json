@@ -1,0 +1,14 @@
+{
+  "id": "torrent-pipe",
+  "name": "Torrent Pipe",
+  "description": "A custom provider that allows you to pipe magnet links or torrents directly into Seanime",
+  "manifestURI": "https://raw.githubusercontent.com/YOUR-USERNAME/YOUR-REPO/main/torrent-pipe-provider/manifest.json",
+  "version": "1.0.0",
+  "author": "Custom",
+  "type": "onlinestream-provider",
+  "language": "javascript",
+  "lang": "en",
+  "icon": "",
+  "website": "",
+  "payloadURI": "https://raw.githubusercontent.com/YOUR-USERNAME/YOUR-REPO/main/torrent-pipe-provider/provider.js"
+}
