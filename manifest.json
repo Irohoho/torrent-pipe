@@ -3,7 +3,7 @@
   "name": "Manual Torrent",
   "description": "Paste magnet links directly - they're remembered forever per anime!",
   "manifestURI": "https://raw.githubusercontent.com/Irohoho/torrent-pipe/master/manifest.json",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "Community",
   "type": "anime-torrent-provider",
   "language": "javascript",

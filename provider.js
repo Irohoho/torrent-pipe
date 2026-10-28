@@ -1,14 +1,18 @@
 /**
  * Manual Torrent Provider for Seanime
  * 
- * Allows you to paste magnet links or local torrent file paths directly as search queries.
- * Now with MEMORY: Once you add a magnet to an anime, it's stored and shown automatically next time!
+ * Paste batch torrent magnets once, use them forever!
  * 
  * Usage:
- * 1. In Seanime's torrent search, paste your magnet link or file path
- * 2. This provider will return it immediately as a torrent result
- * 3. Provider stores it linked to this anime
- * 4. Next time you search this anime, your magnets appear automatically!
+ * 1. Paste a batch torrent magnet (e.g., entire season 1-12)
+ * 2. Provider stores it linked to this anime
+ * 3. When you play Episode 10, Seanime uses the batch torrent automatically!
+ * 4. When you play Episode 11, same batch torrent! No re-pasting needed!
+ * 
+ * Works with:
+ * - Batch torrents (multiple episodes in one torrent)
+ * - Single episode torrents
+ * - Any magnet link, file path, or info hash
  */
 
 class Provider {
@@ -113,57 +117,58 @@ class Provider {
     const query = opts.query.trim();
     const mediaId = opts.media.id;
     
-    console.log(`[Manual Torrent] Received query: "${query}" for anime ${mediaId}`);
+    console.log(`[Manual Torrent] search() called - query: "${query}", anime: ${mediaId}`);
 
-    // FIRST: Check if we have stored torrents for this anime
+    // FIRST: Always check if we have stored torrents for this anime
     const storedTorrents = this.getFromLibrary(mediaId);
-    
-    // If query is empty or just a regular search term, return stored torrents
-    if (!query || (!this.isNewTorrent(query))) {
-      if (storedTorrents.length > 0) {
-        console.log(`[Manual Torrent] Returning ${storedTorrents.length} stored torrent(s)`);
-        // Filter by query if provided
-        if (query) {
-          return storedTorrents.filter(t => 
-            t.name.toLowerCase().includes(query.toLowerCase())
-          );
-        }
-        return storedTorrents;
-      }
+    console.log(`[Manual Torrent] Found ${storedTorrents.length} stored torrent(s) for anime ${mediaId}`);
+
+    // If user is adding a NEW torrent
+    if (query && this.isNewTorrent(query)) {
+      console.log(`[Manual Torrent] Detected NEW torrent input`);
       
-      // No stored torrents and no recognizable input
-      if (!query) {
-        return [];
+      let newTorrents = [];
+
+      // Check if it's a magnet link
+      if (query.toLowerCase().startsWith('magnet:')) {
+        newTorrents = this.handleMagnetLink(query, opts.media);
       }
-      console.log(`[Manual Torrent] No stored torrents and query not recognized`);
-      return [];
+      // Check if it's a file path
+      else if (this.isFilePath(query)) {
+        newTorrents = this.handleFilePath(query, opts.media);
+      }
+      // Check if it's an info hash
+      else if (this.isInfoHash(query)) {
+        newTorrents = this.handleInfoHash(query, opts.media);
+      }
+
+      // Store the new torrent(s) in library
+      if (newTorrents.length > 0) {
+        newTorrents.forEach(torrent => {
+          this.addToLibrary(mediaId, torrent);
+        });
+      }
+
+      // Return both new and stored torrents
+      return [...newTorrents, ...storedTorrents];
     }
 
-    // NEW TORRENT: User is adding a new magnet/file/hash
-    let newTorrents = [];
-
-    // Check if it's a magnet link
-    if (query.toLowerCase().startsWith('magnet:')) {
-      newTorrents = this.handleMagnetLink(query, opts.media);
-    }
-    // Check if it's a file path
-    else if (this.isFilePath(query)) {
-      newTorrents = this.handleFilePath(query, opts.media);
-    }
-    // Check if it's an info hash
-    else if (this.isInfoHash(query)) {
-      newTorrents = this.handleInfoHash(query, opts.media);
+    // NORMAL SEARCH: Return stored torrents (for Seanime to use)
+    // This is called when Seanime is looking for torrents for this anime
+    if (storedTorrents.length > 0) {
+      console.log(`[Manual Torrent] Returning stored torrents for normal search`);
+      // Filter by query if provided
+      if (query) {
+        return storedTorrents.filter(t => 
+          t.name.toLowerCase().includes(query.toLowerCase())
+        );
+      }
+      return storedTorrents;
     }
 
-    // Store the new torrent(s) in library
-    if (newTorrents.length > 0) {
-      newTorrents.forEach(torrent => {
-        this.addToLibrary(mediaId, torrent);
-      });
-    }
-
-    // Return both new and stored torrents
-    return [...newTorrents, ...storedTorrents];
+    // No stored torrents
+    console.log(`[Manual Torrent] No stored torrents found`);
+    return [];
   }
 
   /**
@@ -190,6 +195,12 @@ class Provider {
                  media.englishTitle || 
                  "Manual Torrent";
 
+    // Detect if this is a batch torrent
+    const isBatch = this.detectBatch(name);
+    
+    console.log(`[Manual Torrent] Torrent name: "${name}"`);
+    console.log(`[Manual Torrent] Detected as batch: ${isBatch}`);
+
     return [{
       name: name,
       date: new Date().toISOString(),
@@ -203,8 +214,8 @@ class Provider {
       magnetLink: magnetLink,
       infoHash: infoHash,
       resolution: this.extractResolution(name),
-      isBatch: this.detectBatch(name),
-      episodeNumber: this.extractEpisodeNumber(name),
+      isBatch: isBatch,  // IMPORTANT: Seanime uses this to know it's a batch
+      episodeNumber: isBatch ? -1 : this.extractEpisodeNumber(name),  // -1 for batch
       releaseGroup: this.extractReleaseGroup(name),
       isBestRelease: false,
       confirmed: true,  // User manually provided it, so it's confirmed
@@ -275,10 +286,29 @@ class Provider {
   }
 
   /**
-   * SmartSearch - not supported, just pass through to regular search
+   * SmartSearch - Returns stored torrents filtered by episode if needed
+   * This is what Seanime uses when looking for specific episodes!
    */
   async smartSearch(opts) {
-    return this.search(opts);
+    const mediaId = opts.media.id;
+    const episodeNumber = opts.episodeNumber;
+    const query = opts.query;
+    
+    console.log(`[Manual Torrent] smartSearch() called - anime: ${mediaId}, episode: ${episodeNumber}, query: "${query}"`);
+    
+    // Get stored torrents for this anime
+    const storedTorrents = this.getFromLibrary(mediaId);
+    
+    if (storedTorrents.length === 0) {
+      console.log(`[Manual Torrent] No stored torrents for smartSearch`);
+      return [];
+    }
+
+    console.log(`[Manual Torrent] Returning ${storedTorrents.length} stored torrent(s) for episode ${episodeNumber}`);
+    
+    // Return ALL stored torrents - Seanime will handle batch episode detection
+    // Batch torrents will work because Seanime checks if torrent contains the episode
+    return storedTorrents;
   }
 
   /**
@@ -375,13 +405,24 @@ class Provider {
 
   /**
    * Detect if it's a batch torrent
+   * Batch = multiple episodes in one torrent
    */
   detectBatch(name) {
     const lower = name.toLowerCase();
-    return lower.includes('batch') || 
-           lower.includes('complete') ||
-           lower.includes('season') ||
-           /\d+-\d+/.test(name);  // e.g. "01-12" episode range
+    
+    // Explicit batch indicators
+    if (lower.includes('batch')) return true;
+    if (lower.includes('complete')) return true;
+    if (lower.includes('season')) return true;
+    if (lower.includes('vol.') || lower.includes('volume')) return true;
+    
+    // Episode ranges like "01-12" or "E01-E12"
+    if (/(?:ep?|episode)?\s*\d{1,3}\s*[-~]\s*\d{1,3}/i.test(name)) return true;
+    
+    // Just number ranges like "[1-12]" or "(01-12)"
+    if (/[\[\(]\d{1,3}\s*[-~]\s*\d{1,3}[\]\)]/.test(name)) return true;
+    
+    return false;
   }
 
   /**
