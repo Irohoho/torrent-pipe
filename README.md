@@ -1,42 +1,57 @@
 # Manual Torrent Provider for Seanime
 
-**The simplest way to use custom torrents in Seanime - now with MEMORY! 🧠**
+**Paste a batch torrent ONCE, use it for ALL episodes! 🚀**
 
-Paste your magnet link once, and it's automatically remembered for that anime forever!
+Perfect for batch torrents - paste the magnet once, watch any episode without re-pasting!
 
 ## 🎯 What This Does
 
-This provider has **two modes**:
+**Works PERFECTLY with Seanime's batch torrent support!**
 
-### 1. **ADD Mode** - Paste New Torrents
-Paste magnet links, file paths, or info hashes to add them:
-- **Magnet Links**: `magnet:?xt=urn:btih:ABC123...`
-- **Torrent File Paths**: `/home/user/downloads/anime.torrent`
-- **Info Hashes**: `ABC123DEF456...` (converted to magnet automatically)
-
-### 2. **RECALL Mode** - Automatic Memory 🧠
-- Next time you search that anime, your torrents appear **automatically**!
-- No need to re-paste anything
-- Builds a **personal torrent library** for each anime
-
-## 🔥 How It Works
+### The Magic Workflow:
 
 ```
-First Time (Frieren Episode 10):
-  1. Paste magnet link
-  2. Provider stores it linked to "Frieren"
-  3. Shows your magnet immediately
+Step 1: Paste Batch Torrent
+  - Find: "[SubsPlease] Frieren Season 1 [1080p] (01-28)"
+  - Copy magnet link
+  - Paste into Seanime
+  - Provider stores it for "Frieren"
 
-Second Time (Frieren Episode 11):
-  1. Open Frieren's torrent search
-  2. Your Episode 10 magnet ALREADY THERE! 🎉
-  3. Paste Episode 11 magnet
-  4. Now both episodes stored!
+Step 2: Watch Episode 10
+  - Click Episode 10 in Seanime
+  - Seanime automatically uses your batch torrent!
+  - Episode 10 streams/downloads
 
-Third Time:
-  1. Open Frieren
-  2. Episodes 10 & 11 automatically shown
-  3. Just select and stream! No re-pasting!
+Step 3: Watch Episode 11
+  - Click Episode 11
+  - SAME batch torrent used automatically!
+  - No re-pasting needed!
+
+Step 4+: Watch ANY Episode
+  - Episodes 1-28 ALL available
+  - ONE magnet link for the entire season
+  - Seanime handles episode selection automatically
+```
+
+## 🔥 How It Really Works
+
+```
+YOU paste:  magnet:?xt=... (Frieren S1 Batch 01-28)
+              ↓
+PROVIDER:   Stores it for "Frieren"
+            Marks as batch torrent (isBatch: true)
+              ↓
+SEANIME:    Sees batch torrent available
+            You click Episode 15
+              ↓
+SEANIME:    Uses same batch magnet
+            Extracts Episode 15 from the batch
+              ↓
+RESULT:     You watch Episode 15! 🎉
+              ↓
+TOMORROW:   You click Episode 16
+            Same batch torrent used again!
+            No re-pasting! 🚀
 ```
 
 ## 🚀 Installation
@@ -87,52 +102,59 @@ git push
 
 ## 📖 Usage Examples
 
-### Example 1: Building Your Frieren Collection
+### Example 1: Batch Torrent (MOST COMMON)
 
-**Week 1 - Episode 10 drops:**
-```
-1. Find on Nyaa: "[SubsPlease] Frieren - 10 [1080p]"
-2. Copy magnet: magnet:?xt=urn:btih:ABC123...
-3. In Seanime, go to Frieren
-4. Open torrent search
-5. PASTE the magnet link
-6. Provider stores it and shows it immediately
-7. Stream Episode 10! 🎉
-```
-
-**Week 2 - Episode 11 drops:**
-```
-1. Go to Frieren in Seanime
-2. Open torrent search
-3. YOUR EPISODE 10 IS ALREADY THERE! 🧠
-4. Paste Episode 11 magnet
-5. Now you have BOTH episodes stored
-6. Select Episode 11 and stream!
-```
-
-**Week 3 - Episode 12:**
-```
-1. Open Frieren
-2. Episodes 10 & 11 automatically shown
-3. Paste Episode 12
-4. All three episodes available forever!
-```
-
-### Example 2: Batch Collection
+**Perfect for full seasons!**
 
 ```
-1. Download entire season: "Demon Slayer S1 Batch"
+1. Find on Nyaa: "[SubsPlease] Frieren S1 [1080p] (01-28)"
+2. Copy magnet link
+3. In Seanime:
+   - Go to Frieren
+   - Open torrent search  
+   - PASTE the magnet link
+4. Provider stores it
+5. Watch Episode 1 → Uses batch torrent
+6. Watch Episode 10 → SAME batch torrent
+7. Watch Episode 28 → STILL same batch torrent
+8. ONE magnet for 28 episodes! 🎉
+```
+
+### Example 2: Single Episodes (If you prefer)
+
+```
+Week 1 - Episode 10 releases:
+  - Paste Episode 10 magnet
+  - Watch Episode 10
+
+Week 2 - Episode 11 releases:
+  - Episode 10 still stored
+  - Paste Episode 11 magnet
+  - Both available now
+
+Week 3+:
+  - All pasted episodes available
+  - Build collection as you go
+```
+
+### Example 3: Multiple Quality Options
+
+```
+1. Paste 1080p batch: "Frieren S1 [1080p] (01-28)"
+2. Paste 720p batch: "Frieren S1 [720p] (01-28)"
+3. Now you have BOTH options
+4. Choose quality per episode
+5. Seanime handles batch episode extraction
+```
+
+### Example 4: Private Tracker Batch
+
+```
+1. Get batch from private tracker
 2. Paste magnet once
-3. Forever available when you search "Demon Slayer"
-```
-
-### Example 3: Private Tracker Workflow
-
-```
-1. Get exclusive torrent from private tracker
-2. Paste magnet into Seanime
-3. It's now permanently linked to that anime
-4. Never need to find it again!
+3. Entire season available forever
+4. No need to re-login to tracker
+5. Batch stored permanently per anime
 ```
 
 ## ✨ Features
