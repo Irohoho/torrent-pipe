@@ -1,0 +1,14 @@
+{
+  "id": "manual-torrent",
+  "name": "Manual Torrent",
+  "description": "Paste magnet links or torrent file paths directly as search queries",
+  "manifestURI": "https://raw.githubusercontent.com/YOUR-USERNAME/torrent-pipe/main/manifest.json",
+  "version": "1.0.0",
+  "author": "Community",
+  "type": "anime-torrent-provider",
+  "language": "javascript",
+  "lang": "en",
+  "icon": "",
+  "website": "",
+  "payloadURI": "https://raw.githubusercontent.com/YOUR-USERNAME/torrent-pipe/main/provider.js"
+}

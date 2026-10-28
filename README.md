@@ -1,258 +1,223 @@
-# Torrent Pipe for Seanime
+# Manual Torrent Provider for Seanime
 
-A custom Seanime provider plugin that enables you to pipe custom magnet links or torrents directly into Seanime to hook up as a provider.
+**The simplest way to use custom torrents in Seanime.**
 
-## 📦 What's Included
+Just paste your magnet link or file path directly into Seanime's torrent search, and it instantly becomes available!
 
-This repository contains:
+## 🎯 What This Does
 
-1. **torrent-pipe-provider** - The Seanime provider plugin
-2. **torrent-pipe-api** - API server and CLI tool for managing torrents
+Instead of searching torrent sites, this provider lets you **manually input** torrents in three ways:
 
-## 🚀 Quick Start
+1. **Magnet Links**: `magnet:?xt=urn:btih:ABC123...`
+2. **Torrent File Paths**: `/home/user/downloads/anime.torrent`
+3. **Info Hashes**: `ABC123DEF456...` (converted to magnet automatically)
 
-### 1. Set Up the Provider
+## 🚀 Installation
 
-1. **Host the provider files** on GitHub:
-   - Fork or clone this repository
-   - Upload to your GitHub account
+### 1. Upload to GitHub
 
-2. **Update manifest URLs** in `torrent-pipe-provider/manifest.json`:
-   ```json
-   {
-     "manifestURI": "https://raw.githubusercontent.com/YOUR-USERNAME/torrent-pipe/main/torrent-pipe-provider/manifest.json",
-     "payloadURI": "https://raw.githubusercontent.com/YOUR-USERNAME/torrent-pipe/main/torrent-pipe-provider/provider.js"
-   }
+```bash
+cd /home/acika/Repositories/torrent-pipe
+
+git init
+git add .
+git commit -m "Add Manual Torrent provider"
+
+# Using gh CLI:
+gh repo create torrent-pipe --public --source=. --push
+```
+
+### 2. Update manifest.json
+
+Replace `YOUR-USERNAME` with your GitHub username:
+
+```json
+{
+  "manifestURI": "https://raw.githubusercontent.com/YOUR-USERNAME/torrent-pipe/main/manifest.json",
+  "payloadURI": "https://raw.githubusercontent.com/YOUR-USERNAME/torrent-pipe/main/provider.js"
+}
+```
+
+Commit and push:
+```bash
+git add manifest.json
+git commit -m "Update URLs"
+git push
+```
+
+### 3. Add to Seanime
+
+1. Open Seanime
+2. Go to **Settings** → **Extensions**
+3. Click **"Add Extension"**
+4. Paste your manifest URL:
    ```
-
-3. **Add to Seanime**:
-   - Open Seanime
-   - Go to **Extensions** tab
-   - Click **Add extensions**
-   - Paste your manifest URL
-
-### 2. Start Managing Torrents
-
-#### Using the API Server + CLI
-
-```bash
-# Start the server
-cd torrent-pipe-api
-node server.js
-
-# In another terminal, add torrents
-node cli.js add "Attack on Titan S1" "magnet:?xt=urn:btih:..." --sub
-node cli.js add "Demon Slayer" "magnet:?xt=..." --both
-
-# List your torrents
-node cli.js list
-
-# Remove a torrent
-node cli.js remove <id>
-```
-
-#### Using HTTP API Directly
-
-```bash
-# Add a torrent
-curl -X POST http://localhost:3456/torrents \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "My Anime",
-    "magnet": "magnet:?xt=urn:btih:...",
-    "subOrDub": "sub"
-  }'
-
-# List torrents
-curl http://localhost:3456/torrents
-```
-
-## 🔧 How It Works
-
-```
-┌─────────────────┐
-│   Your CLI      │  Add torrents via CLI
-│   or API Call   │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Torrent Pipe   │  Stores torrents in
-│   API Server    │  torrents.json
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│    Seanime      │  Provider reads torrents
-│    Provider     │  and makes them searchable
-└─────────────────┘
-         │
-         ▼
-┌─────────────────┐
-│    Seanime      │  Search and access your
-│      UI         │  custom torrents
-└─────────────────┘
-```
-
-## 📖 Documentation
-
-- [Provider README](./torrent-pipe-provider/README.md) - Detailed provider documentation
-- [API README](./torrent-pipe-api/README.md) - API and CLI documentation
-
-## 🎯 Features
-
-- ✅ Add custom magnet links or torrent URLs
-- ✅ Store multiple torrents locally
-- ✅ Search through your piped torrents in Seanime
-- ✅ Support for both sub and dub
-- ✅ Single-file or multi-episode torrents
-- ✅ CLI tool for easy torrent management
-- ✅ HTTP API for programmatic access
-- ✅ Persistent storage
-
-## 🔍 Use Cases
-
-1. **Personal Collection**: Manage anime you've downloaded
-2. **Private Trackers**: Add torrents from private trackers not supported by standard providers
-3. **Specific Release Groups**: Follow fansub groups or specific encoders
-4. **Custom Quality**: Add torrents with specific quality/codec preferences
-5. **Offline Viewing**: Track torrents you want to download for offline viewing
-
-## 📋 Requirements
-
-- [Seanime](https://github.com/5rahim/seanime) installed and running
-- Node.js (for the API server and CLI)
-- A way to host the provider files (GitHub recommended)
-
-## 🛠️ Installation
-
-### Provider Installation
-
-1. **Upload files to GitHub:**
-   ```bash
-   git clone https://github.com/Seanime-contributions/Seanime-Providers
-   cd Seanime-Providers
-   # Copy the torrent-pipe-provider folder here
-   git add .
-   git commit -m "Add Torrent Pipe provider"
-   git push
+   https://raw.githubusercontent.com/YOUR-USERNAME/torrent-pipe/main/manifest.json
    ```
+5. Install!
 
-2. **Add to Seanime:**
-   - Navigate to Extensions in Seanime
-   - Add extension using the manifest URL
+## 📖 Usage
 
-### API/CLI Installation
+### Example 1: Paste a Magnet Link
 
-```bash
-cd torrent-pipe-api
-npm install -g .
+1. Find a torrent on Nyaa.si or your tracker
+2. Copy the magnet link: `magnet:?xt=urn:btih:ABC123...`
+3. In Seanime, go to an anime's page
+4. Open the torrent search/downloader
+5. **Paste the entire magnet link** into the search box
+6. Hit search
+7. The "Manual Torrent" provider returns your magnet
+8. Select it and stream/download!
+
+### Example 2: Use a Local .torrent File
+
+1. Download a .torrent file to `/home/user/anime.torrent`
+2. In Seanime's torrent search, paste the path:
+   ```
+   /home/user/anime.torrent
+   ```
+3. Search
+4. Select and use!
+
+### Example 3: Paste Just the Info Hash
+
+1. Copy just the hash: `ABC123DEF456...`
+2. Paste it in Seanime's search
+3. Provider converts it to a magnet automatically
+
+## ✨ Features
+
+- ✅ **Zero configuration** - no API server, no CLI, no database
+- ✅ **Instant results** - no scraping or network requests
+- ✅ **Supports magnet links, file paths, and info hashes**
+- ✅ **Automatically extracts metadata** from filenames (resolution, episode, release group)
+- ✅ **Works with debrid services** and torrent streaming
+- ✅ **Simple and lightweight**
+
+## 🔍 How It Works
+
+```
+You paste:  magnet:?xt=urn:btih:ABC123&dn=[SubsPlease]+Frieren+-+10+[1080p]
+             ↓
+Provider extracts:
+  - Name: "[SubsPlease] Frieren - 10 [1080p]"
+  - Info Hash: ABC123
+  - Resolution: 1080p
+  - Episode: 10
+  - Release Group: SubsPlease
+             ↓
+Returns as torrent result
+             ↓
+Seanime displays it
+             ↓
+You click to stream/download!
 ```
 
-Or use directly without installing:
-```bash
-node server.js
-node cli.js
+## 🎬 Real Workflow Example
+
+```
+1. You're watching "Frieren" on Seanime
+
+2. New episode drops, you find it on Nyaa:
+   "[SubsPlease] Frieren - 11 [1080p].mkv"
+   magnet:?xt=urn:btih:XYZ789...
+
+3. In Seanime, click to download episode 11
+
+4. Seanime shows torrent search dialog
+
+5. Instead of searching, you PASTE the magnet link
+
+6. Manual Torrent provider instantly returns it
+
+7. Click "Download" or "Stream"
+
+8. Done! 🎉
 ```
 
-## 📝 Usage Examples
+## 📝 Supported Formats
 
-### Example 1: Adding a Batch Torrent
-
-```bash
-node cli.js add "Cowboy Bebop Complete" "magnet:?xt=urn:btih:ABC123..." --sub
+### Magnet Links
+```
+magnet:?xt=urn:btih:ABC123DEF456...
+magnet:?xt=urn:btih:ABC123&dn=Anime+Name&tr=tracker...
 ```
 
-This adds the entire series as a single batch torrent.
+### File Paths
+```
+Linux/Mac:
+/home/user/downloads/anime.torrent
+~/downloads/anime.torrent
+../anime.torrent
 
-### Example 2: Adding Individual Episodes
-
-Via API:
-```bash
-curl -X POST http://localhost:3456/torrents \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Steins;Gate",
-    "magnet": "magnet:?xt=urn:btih:...",
-    "subOrDub": "both",
-    "episodes": [
-      {
-        "number": 1,
-        "title": "Turning Point",
-        "magnet": "magnet:?xt=urn:btih:EP1..."
-      },
-      {
-        "number": 2,
-        "title": "Time Travel Paranoia",
-        "magnet": "magnet:?xt=urn:btih:EP2..."
-      }
-    ]
-  }'
+Windows:
+C:\Downloads\anime.torrent
+\\network\share\anime.torrent
 ```
 
-### Example 3: Searching in Seanime
+### Info Hashes
+```
+Hex (40 chars):
+abc123def456789...
 
-1. Start the API server
-2. Add your torrents
-3. Open Seanime
-4. Search for your anime title
-5. The Torrent Pipe provider will show your torrents!
+Base32 (32 chars):
+ABCDEFGH234567...
+```
 
-## ⚠️ Important Notes
+## 🆚 vs Other Torrent Providers
 
-### Magnet Link Handling
+| Feature | Manual Torrent | Nyaa/AnimeTosho Providers |
+|---------|---------------|---------------------------|
+| Setup | Just install | Need to configure |
+| Speed | Instant | Depends on site |
+| Private torrents | ✅ Yes | ❌ No |
+| Custom trackers | ✅ Yes | ❌ No |
+| Network needed | ❌ No | ✅ Yes |
+| Torrent sites down | ✅ Still works | ❌ Breaks |
 
-Seanime is primarily designed for streaming providers. The magnet links are exposed as "video sources" but Seanime itself doesn't download or stream torrents. You'll need:
+## 💡 Use Cases
 
-- A torrent client configured to handle magnet links
-- Or a torrent streaming service
-- Or integration with a download manager
+1. **Private Trackers**: Use torrents from trackers not supported by other providers
+2. **Offline**: Use torrents you already have without internet
+3. **Custom Sources**: RSS feeds, personal collections, etc.
+4. **Backup**: When your main torrent provider is down
+5. **Testing**: Quickly test a specific torrent
 
-### Storage Synchronization
+## ⚙️ Technical Details
 
-Currently, the provider uses Seanime's internal storage (`$store`), which is separate from the API's `torrents.json` file. To fully integrate:
+- **Type**: `anime-torrent-provider` (special)
+- **Smart Search**: Not supported (no filters)
+- **Latest Torrents**: Not applicable
+- **Adult Content**: Supported (provider doesn't filter)
 
-1. **Option A**: Modify the provider to read from a shared JSON file
-2. **Option B**: Create a Seanime plugin that syncs with the API
-3. **Option C**: Use the provider's built-in methods via console
+## 🐛 Troubleshooting
 
-See the provider README for integration details.
+### "No results found"
 
-## 🔮 Future Enhancements
+- Make sure you pasted the **entire** magnet link (starts with `magnet:`)
+- For file paths, include the `.torrent` extension
+- Check there are no extra spaces
 
-- [ ] RSS feed support for automatic torrent discovery
-- [ ] Integration with popular torrent trackers
-- [ ] Automatic episode detection from torrent names
-- [ ] Quality and resolution filtering
-- [ ] Seeder/leecher information
-- [ ] Torrent health monitoring
-- [ ] Web UI for torrent management
-- [ ] Seanime plugin for seamless integration
+### "Invalid format"
 
-## 🤝 Contributing
+- Magnet links must start with `magnet:`
+- File paths must end with `.torrent`
+- Info hashes must be 40 hex or 32 base32 characters
 
-Contributions are welcome! Feel free to:
+### Provider doesn't appear
 
-- Report bugs
-- Suggest features
-- Submit pull requests
-- Improve documentation
+- Verify the manifest URL is correct
+- Check you pushed the files to GitHub
+- Try removing and re-adding the extension
 
 ## 📄 License
 
-MIT
+MIT - Use freely!
 
 ## 🙏 Credits
 
 - [Seanime](https://github.com/5rahim/seanime) by [5rahim](https://github.com/5rahim)
-- [Seanime-Providers](https://github.com/Seanime-contributions/Seanime-Providers) community
-
-## 📞 Support
-
-- Open an issue on GitHub
-- Check the documentation in each subfolder
-- Review the Seanime provider documentation
 
 ---
 
-**Note**: This is a custom provider plugin for personal use. Ensure you comply with your local laws and the terms of service of any torrent trackers you use.
+**That's it! No complex setup, no API servers, no CLI tools. Just paste and go.** 🚀
