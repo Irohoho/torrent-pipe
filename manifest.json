@@ -1,9 +1,9 @@
 {
   "id": "manual-torrent",
   "name": "Manual Torrent",
-  "description": "Paste magnet links directly - they're remembered forever per anime!",
+  "description": "Manual torrent and magnet link provider with anime-level caching and batch episode resolution.",
   "manifestURI": "https://raw.githubusercontent.com/Irohoho/torrent-pipe/master/manifest.json",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "author": "Community",
   "type": "anime-torrent-provider",
   "language": "javascript",
