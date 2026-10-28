@@ -1,9 +1,9 @@
 {
   "id": "manual-torrent",
   "name": "Manual Torrent",
-  "description": "Paste magnet links or torrent file paths directly as search queries",
+  "description": "Paste magnet links directly - they're remembered forever per anime!",
   "manifestURI": "https://raw.githubusercontent.com/Irohoho/torrent-pipe/master/manifest.json",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "author": "Community",
   "type": "anime-torrent-provider",
   "language": "javascript",

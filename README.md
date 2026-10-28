@@ -1,16 +1,43 @@
 # Manual Torrent Provider for Seanime
 
-**The simplest way to use custom torrents in Seanime.**
+**The simplest way to use custom torrents in Seanime - now with MEMORY! 🧠**
 
-Just paste your magnet link or file path directly into Seanime's torrent search, and it instantly becomes available!
+Paste your magnet link once, and it's automatically remembered for that anime forever!
 
 ## 🎯 What This Does
 
-Instead of searching torrent sites, this provider lets you **manually input** torrents in three ways:
+This provider has **two modes**:
 
-1. **Magnet Links**: `magnet:?xt=urn:btih:ABC123...`
-2. **Torrent File Paths**: `/home/user/downloads/anime.torrent`
-3. **Info Hashes**: `ABC123DEF456...` (converted to magnet automatically)
+### 1. **ADD Mode** - Paste New Torrents
+Paste magnet links, file paths, or info hashes to add them:
+- **Magnet Links**: `magnet:?xt=urn:btih:ABC123...`
+- **Torrent File Paths**: `/home/user/downloads/anime.torrent`
+- **Info Hashes**: `ABC123DEF456...` (converted to magnet automatically)
+
+### 2. **RECALL Mode** - Automatic Memory 🧠
+- Next time you search that anime, your torrents appear **automatically**!
+- No need to re-paste anything
+- Builds a **personal torrent library** for each anime
+
+## 🔥 How It Works
+
+```
+First Time (Frieren Episode 10):
+  1. Paste magnet link
+  2. Provider stores it linked to "Frieren"
+  3. Shows your magnet immediately
+
+Second Time (Frieren Episode 11):
+  1. Open Frieren's torrent search
+  2. Your Episode 10 magnet ALREADY THERE! 🎉
+  3. Paste Episode 11 magnet
+  4. Now both episodes stored!
+
+Third Time:
+  1. Open Frieren
+  2. Episodes 10 & 11 automatically shown
+  3. Just select and stream! No re-pasting!
+```
 
 ## 🚀 Installation
 
@@ -58,39 +85,65 @@ git push
 
 ## 📖 Usage
 
-### Example 1: Paste a Magnet Link
+## 📖 Usage Examples
 
-1. Find a torrent on Nyaa.si or your tracker
-2. Copy the magnet link: `magnet:?xt=urn:btih:ABC123...`
-3. In Seanime, go to an anime's page
-4. Open the torrent search/downloader
-5. **Paste the entire magnet link** into the search box
-6. Hit search
-7. The "Manual Torrent" provider returns your magnet
-8. Select it and stream/download!
+### Example 1: Building Your Frieren Collection
 
-### Example 2: Use a Local .torrent File
+**Week 1 - Episode 10 drops:**
+```
+1. Find on Nyaa: "[SubsPlease] Frieren - 10 [1080p]"
+2. Copy magnet: magnet:?xt=urn:btih:ABC123...
+3. In Seanime, go to Frieren
+4. Open torrent search
+5. PASTE the magnet link
+6. Provider stores it and shows it immediately
+7. Stream Episode 10! 🎉
+```
 
-1. Download a .torrent file to `/home/user/anime.torrent`
-2. In Seanime's torrent search, paste the path:
-   ```
-   /home/user/anime.torrent
-   ```
-3. Search
-4. Select and use!
+**Week 2 - Episode 11 drops:**
+```
+1. Go to Frieren in Seanime
+2. Open torrent search
+3. YOUR EPISODE 10 IS ALREADY THERE! 🧠
+4. Paste Episode 11 magnet
+5. Now you have BOTH episodes stored
+6. Select Episode 11 and stream!
+```
 
-### Example 3: Paste Just the Info Hash
+**Week 3 - Episode 12:**
+```
+1. Open Frieren
+2. Episodes 10 & 11 automatically shown
+3. Paste Episode 12
+4. All three episodes available forever!
+```
 
-1. Copy just the hash: `ABC123DEF456...`
-2. Paste it in Seanime's search
-3. Provider converts it to a magnet automatically
+### Example 2: Batch Collection
+
+```
+1. Download entire season: "Demon Slayer S1 Batch"
+2. Paste magnet once
+3. Forever available when you search "Demon Slayer"
+```
+
+### Example 3: Private Tracker Workflow
+
+```
+1. Get exclusive torrent from private tracker
+2. Paste magnet into Seanime
+3. It's now permanently linked to that anime
+4. Never need to find it again!
+```
 
 ## ✨ Features
 
 - ✅ **Zero configuration** - no API server, no CLI, no database
 - ✅ **Instant results** - no scraping or network requests
+- ✅ **Persistent memory** - torrents stored per anime automatically 🧠
 - ✅ **Supports magnet links, file paths, and info hashes**
-- ✅ **Automatically extracts metadata** from filenames (resolution, episode, release group)
+- ✅ **Automatically extracts metadata** (resolution, episode, release group)
+- ✅ **Build your personal library** as you watch
+- ✅ **Never re-paste the same torrent** - stored forever
 - ✅ **Works with debrid services** and torrent streaming
 - ✅ **Simple and lightweight**
 
@@ -106,11 +159,15 @@ Provider extracts:
   - Episode: 10
   - Release Group: SubsPlease
              ↓
-Returns as torrent result
+Stores in Seanime's local storage:
+  Anime ID 123 → [this torrent]
              ↓
-Seanime displays it
+Returns as torrent result immediately
              ↓
-You click to stream/download!
+Next time you search this anime:
+  Provider auto-loads stored torrents!
+             ↓
+Your collection grows automatically! 🎉
 ```
 
 ## 🎬 Real Workflow Example

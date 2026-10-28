@@ -2,14 +2,20 @@
  * Manual Torrent Provider for Seanime
  * 
  * Allows you to paste magnet links or local torrent file paths directly as search queries.
+ * Now with MEMORY: Once you add a magnet to an anime, it's stored and shown automatically next time!
  * 
  * Usage:
  * 1. In Seanime's torrent search, paste your magnet link or file path
  * 2. This provider will return it immediately as a torrent result
- * 3. Select it and stream/download!
+ * 3. Provider stores it linked to this anime
+ * 4. Next time you search this anime, your magnets appear automatically!
  */
 
 class Provider {
+  constructor() {
+    this.STORAGE_KEY = 'manual_torrent_library';
+  }
+
   getSettings() {
     return {
       canSmartSearch: false,  // We don't support smart search filters
@@ -20,46 +26,160 @@ class Provider {
   }
 
   /**
+   * Load stored torrents from Seanime's storage
+   */
+  loadLibrary() {
+    try {
+      const stored = $store.get(this.STORAGE_KEY);
+      return stored || {};
+    } catch (error) {
+      console.log(`[Manual Torrent] Error loading library: ${error.message}`);
+      return {};
+    }
+  }
+
+  /**
+   * Save torrents to Seanime's storage
+   */
+  saveLibrary(library) {
+    try {
+      $store.set(this.STORAGE_KEY, library);
+      console.log(`[Manual Torrent] Library saved successfully`);
+    } catch (error) {
+      console.log(`[Manual Torrent] Error saving library: ${error.message}`);
+    }
+  }
+
+  /**
+   * Add torrent to library for a specific anime
+   */
+  addToLibrary(mediaId, torrent) {
+    const library = this.loadLibrary();
+    
+    if (!library[mediaId]) {
+      library[mediaId] = [];
+    }
+
+    // Check if this torrent already exists (by info hash or magnet link)
+    const exists = library[mediaId].some(t => 
+      (t.infoHash && t.infoHash === torrent.infoHash) ||
+      (t.magnetLink && t.magnetLink === torrent.magnetLink)
+    );
+
+    if (!exists) {
+      library[mediaId].push(torrent);
+      this.saveLibrary(library);
+      console.log(`[Manual Torrent] Added torrent to library for anime ${mediaId}`);
+    } else {
+      console.log(`[Manual Torrent] Torrent already exists in library`);
+    }
+  }
+
+  /**
+   * Get stored torrents for a specific anime
+   */
+  getFromLibrary(mediaId) {
+    const library = this.loadLibrary();
+    return library[mediaId] || [];
+  }
+
+  /**
+   * Remove a torrent from library
+   */
+  removeFromLibrary(mediaId, infoHash) {
+    const library = this.loadLibrary();
+    
+    if (library[mediaId]) {
+      library[mediaId] = library[mediaId].filter(t => t.infoHash !== infoHash);
+      
+      // Clean up empty entries
+      if (library[mediaId].length === 0) {
+        delete library[mediaId];
+      }
+      
+      this.saveLibrary(library);
+      console.log(`[Manual Torrent] Removed torrent from library`);
+    }
+  }
+
+  /**
    * Search accepts:
-   * - Magnet links: magnet:?xt=urn:btih:...
-   * - File paths: /path/to/file.torrent or C:\path\to\file.torrent
-   * - Info hashes: just the hash string (will be converted to magnet)
+   * - Magnet links: magnet:?xt=urn:btih:... (stores to library)
+   * - File paths: /path/to/file.torrent or C:\path\to\file.torrent (stores to library)
+   * - Info hashes: just the hash string (stores to library)
+   * - Empty/normal search: Returns previously stored torrents for this anime
    */
   async search(opts) {
     const query = opts.query.trim();
+    const mediaId = opts.media.id;
     
-    console.log(`[Manual Torrent] Received query: ${query}`);
+    console.log(`[Manual Torrent] Received query: "${query}" for anime ${mediaId}`);
+
+    // FIRST: Check if we have stored torrents for this anime
+    const storedTorrents = this.getFromLibrary(mediaId);
     
-    // If empty query, return nothing
-    if (!query) {
+    // If query is empty or just a regular search term, return stored torrents
+    if (!query || (!this.isNewTorrent(query))) {
+      if (storedTorrents.length > 0) {
+        console.log(`[Manual Torrent] Returning ${storedTorrents.length} stored torrent(s)`);
+        // Filter by query if provided
+        if (query) {
+          return storedTorrents.filter(t => 
+            t.name.toLowerCase().includes(query.toLowerCase())
+          );
+        }
+        return storedTorrents;
+      }
+      
+      // No stored torrents and no recognizable input
+      if (!query) {
+        return [];
+      }
+      console.log(`[Manual Torrent] No stored torrents and query not recognized`);
       return [];
     }
 
+    // NEW TORRENT: User is adding a new magnet/file/hash
+    let newTorrents = [];
+
     // Check if it's a magnet link
     if (query.toLowerCase().startsWith('magnet:')) {
-      return this.handleMagnetLink(query, opts.media);
+      newTorrents = this.handleMagnetLink(query, opts.media);
     }
-
     // Check if it's a file path
-    if (this.isFilePath(query)) {
-      return this.handleFilePath(query, opts.media);
+    else if (this.isFilePath(query)) {
+      newTorrents = this.handleFilePath(query, opts.media);
     }
-
     // Check if it's an info hash
-    if (this.isInfoHash(query)) {
-      return this.handleInfoHash(query, opts.media);
+    else if (this.isInfoHash(query)) {
+      newTorrents = this.handleInfoHash(query, opts.media);
     }
 
-    // If we can't recognize it, return empty
-    console.log(`[Manual Torrent] Could not recognize query format`);
-    return [];
+    // Store the new torrent(s) in library
+    if (newTorrents.length > 0) {
+      newTorrents.forEach(torrent => {
+        this.addToLibrary(mediaId, torrent);
+      });
+    }
+
+    // Return both new and stored torrents
+    return [...newTorrents, ...storedTorrents];
+  }
+
+  /**
+   * Check if query is a new torrent being added
+   */
+  isNewTorrent(query) {
+    return query.toLowerCase().startsWith('magnet:') ||
+           this.isFilePath(query) ||
+           this.isInfoHash(query);
   }
 
   /**
    * Handle magnet link input
    */
   handleMagnetLink(magnetLink, media) {
-    console.log(`[Manual Torrent] Processing magnet link`);
+    console.log(`[Manual Torrent] Processing NEW magnet link`);
     
     // Extract info hash from magnet link
     const infoHash = this.extractInfoHashFromMagnet(magnetLink);
@@ -87,7 +207,8 @@ class Provider {
       episodeNumber: this.extractEpisodeNumber(name),
       releaseGroup: this.extractReleaseGroup(name),
       isBestRelease: false,
-      confirmed: true  // User manually provided it, so it's confirmed
+      confirmed: true,  // User manually provided it, so it's confirmed
+      addedAt: Date.now()  // Track when it was added
     }];
   }
 
@@ -95,11 +216,14 @@ class Provider {
    * Handle file path input
    */
   handleFilePath(filePath, media) {
-    console.log(`[Manual Torrent] Processing file path: ${filePath}`);
+    console.log(`[Manual Torrent] Processing NEW file path: ${filePath}`);
     
     // Extract filename
     const fileName = filePath.split(/[/\\]/).pop();
     const cleanName = fileName.replace(/\.torrent$/i, '');
+    
+    // Generate a pseudo info hash from the file path for deduplication
+    const pseudoHash = this.hashString(filePath);
 
     return [{
       name: cleanName,
@@ -112,13 +236,14 @@ class Provider {
       link: filePath,  // Store the file path here
       downloadUrl: filePath,  // And here
       magnetLink: "",  // Will be empty - torrent client should handle file path
-      infoHash: "",
+      infoHash: pseudoHash,  // Use pseudo hash for deduplication
       resolution: this.extractResolution(cleanName),
       isBatch: this.detectBatch(cleanName),
       episodeNumber: this.extractEpisodeNumber(cleanName),
       releaseGroup: this.extractReleaseGroup(cleanName),
       isBestRelease: false,
-      confirmed: true
+      confirmed: true,
+      addedAt: Date.now()
     }];
   }
 
@@ -126,7 +251,7 @@ class Provider {
    * Handle raw info hash input
    */
   handleInfoHash(infoHash, media) {
-    console.log(`[Manual Torrent] Processing info hash`);
+    console.log(`[Manual Torrent] Processing NEW info hash`);
     
     const magnetLink = `magnet:?xt=urn:btih:${infoHash}`;
     const name = media.romajiTitle || media.englishTitle || "Manual Torrent";
@@ -144,7 +269,8 @@ class Provider {
       magnetLink: magnetLink,
       infoHash: infoHash,
       isBestRelease: false,
-      confirmed: true
+      confirmed: true,
+      addedAt: Date.now()
     }];
   }
 
@@ -291,5 +417,18 @@ class Provider {
     // Usually at the start in brackets: [SubsPlease] or [Judas]
     const match = name.match(/^\[([^\]]+)\]/);
     return match ? match[1] : "";
+  }
+
+  /**
+   * Simple hash function for generating pseudo-hashes from file paths
+   */
+  hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(16).padStart(40, '0');
   }
 }
